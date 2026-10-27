@@ -89,8 +89,8 @@ exports.updatePreferences = (req, res) => {
 
     const { preferences } = req.body;
 
-    if (!Array.isArray(preferences)) {
-        return res.status(400).json({ message: 'preferences must be an array' });
+    if (!validPrefs(preferences)) {
+        return res.status(400).json({ message: 'preferences must be an array of non-empty strings' });
     }
     user.preferences = preferences;
 
