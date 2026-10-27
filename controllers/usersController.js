@@ -2,6 +2,10 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { users } = require('../data/store');
 
+const validPrefs = (p) =>
+    Array.isArray(p) && p.every(x => typeof x === 'string' && x.trim() !== '');
+
+
 exports.signup = async (req, res) => {
     try {
         const { name, email, password, preferences } = req.body;
@@ -10,13 +14,24 @@ exports.signup = async (req, res) => {
             return res.status(400).json({ message: 'name, email and password are required' });
         }
 
+        if (!/^\S+@\S+\.\S+$/.test(email)) {
+            return res.status(400).json({ message: 'Invalid email' });
+        }
+        if (password.length < 8) {
+            return res.status(400).json({ message: 'Password must be at least 8 characters' });
+        }
+
+        if (preferences !== undefined && !validPrefs(preferences)) {
+            return res.status(400).json({ message: 'preferences must be an array of non-empty strings' });
+        }
+
         const user = users.find(user => user.email === email)
 
         if (user) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        const hashedPassword = bcrypt.hashSync(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         users.push({ name, email, password: hashedPassword, preferences: preferences || [] });
 
@@ -65,7 +80,7 @@ exports.getPreferences = (req, res) => {
 };
 
 exports.updatePreferences = (req, res) => {
-    
+
     const user = users.find(u => u.email === req.user.email);
 
     if (!user) {

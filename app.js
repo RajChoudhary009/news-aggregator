@@ -8,7 +8,8 @@ app.use(express.urlencoded({ extended: true }));
 const usersRoutes = require('./routes/users');
 const newsRoutes = require('./routes/news');
 
-app.use('/users', usersRoutes);
+app.use('/users', usersRoutes); 
+app.use('/', usersRoutes);     
 app.use('/news', newsRoutes);
 
 const PORT = process.env.PORT || 3000;

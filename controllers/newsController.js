@@ -15,7 +15,7 @@ exports.getNews = async (req, res) => {
     query = user.preferences.length ? user.preferences.join(' OR ') : 'india';
 
     const cached = newsCache[query];
-    
+
     if (cached && Date.now() - cached.time < CACHE_TTL) {
       return res.status(200).json({ news: cached.data, cached: true });
     }
@@ -27,8 +27,8 @@ exports.getNews = async (req, res) => {
     newsCache[query] = { data: response.data.articles, time: Date.now() };
     res.status(200).json({ news: response.data.articles, cached: false });
   } catch (e) {
-    // fallback: stale cache ya empty list, taaki API down hone par bhi app na toote
     const stale = newsCache[query];
-    res.status(200).json({ news: stale ? stale.data : [], cached: !!stale });
+    if (stale) return res.status(200).json({ news: stale.data, cached: true });
+    return res.status(502).json({ message: 'Failed to fetch news from external API' });
   }
 };

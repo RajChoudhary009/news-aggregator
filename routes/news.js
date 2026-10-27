@@ -2,8 +2,8 @@ const express = require('express');
 const routes = express.Router();
 
 const { getNews } = require('../controllers/newsController');
-const { varifyToken } = require('../middleware/auth');
+const { verifyToken } = require('../middleware/auth');
 
-routes.get('/', varifyToken, getNews);
+routes.get('/', verifyToken, getNews);
 
 module.exports = routes;
